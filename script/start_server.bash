@@ -1,1 +1,1 @@
-echo "NoImpletementError"
+python src/main/journeyjuice.py

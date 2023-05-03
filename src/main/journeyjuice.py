@@ -83,10 +83,10 @@ import soundfile as sf
 duration = 5  # seconds
 filename = 'recording.wav'
 
-# Record audio using the built-in microphone
-print(f"Recording audio for {duration} seconds...")
-#!arecord -D plughw:1,0 -d $duration -f cd -t wav $filename
-!arecord -D default -d $duration -f cd -t wav $filename
+# # Record audio using the built-in microphone
+# print(f"Recording audio for {duration} seconds...")
+# #!arecord -D plughw:1,0 -d $duration -f cd -t wav $filename
+# !arecord -D default -d $duration -f cd -t wav $filename # TODO update
 
 
 # Read the audio data from the file into a BytesIO object
@@ -103,8 +103,8 @@ files.download(filename)
 
 ## Option 2
 
-!pip install sounddevice
-!apt-get install libportaudio2
+# !pip install sounddevice
+# !apt-get install libportaudio2
 
 import sounddevice as sd
 from scipy.io.wavfile import write
@@ -131,12 +131,13 @@ import whisper
 
 model = whisper.load_model("base")
 
-#connect to google drive
-from google.colab import drive # TODO: udpate
-drive.mount('/content/drive')
-
+# #connect to google drive
+# from google.colab import drive # TODO: udpate
+# drive.mount('/content/drive')
+from pathlib import Path
+audio_path = Path("./asset/HODL Whisper 1.m4a")
 # load audio and pad/trim it to fit 30 seconds
-audio = whisper.load_audio("/content/drive/MyDrive/Hands on Deep Learning/Project/HODL Whisper 1.m4a")
+audio = whisper.load_audio(audio_path)
 audio = whisper.pad_or_trim(audio)
 
 # make log-Mel spectrogram and move to the same device as the model
@@ -159,7 +160,6 @@ import subprocess
 
 text = "provide me 2 days itineray for a trip to boston for a 5 year old"
 cmd = f"""
-export OPENAI_API_KEY='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'
 curl https://api.openai.com/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
@@ -176,9 +176,6 @@ output = subprocess.check_output(cmd, shell=True)
 #Print the output
 #print(output)
 
-##anant's API: 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
-##Gen AI API: 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
-
 import json
 
 #response = b'{"id":"chatcmpl-78WnM8WPpdoRTNydYkg74y5oZ6SPH","object":"chat.completion","created":1682267044,"model":"gpt-3.5-turbo-0301","usage":{"prompt_tokens":14,"completion_tokens":183,"total_tokens":197},"choices":[{"message":{"role":"assistant","content":"The Charles River is an 80-mile long river in eastern Massachusetts that flows through Boston, Cambridge, and several other towns. The river starts at Echo Lake in Hopkinton and ends in Boston Harbor. \\n\\nThe Charles River basin is a popular recreational area for boating, sailing, kayaking, and rowing. It is also home to several parks, including the Esplanade, which hosts the annual Boston Pops Fireworks Spectacular on the Fourth of July.\\n\\nThe river has a long and rich history, playing an important role in the development of Boston and Cambridge. It was named after King Charles I of England and was once a major transportation route for goods and people. In the mid-20th century, the river was heavily polluted, but significant efforts have been made to clean it up.\\n\\nToday, the Charles River is a symbol of the Boston area and is beloved by residents and visitors alike."},"finish_reason":"stop","index":0}]}\n'
@@ -190,7 +187,7 @@ print(response_dict['choices'][0]['message']['content'])
 
 """**Text to Speech**"""
 
-pip install gtts
+# pip install gtts
 
 # Import the required module for text 
 # to speech conversion
@@ -231,7 +228,7 @@ Audio(mp3_file, autoplay=True)
 
 """**Events API**"""
 
-pip install google-search-results
+# pip install google-search-results
 
 # link to the API documentation: https://serpapi.com/google-events-api
 
