@@ -7,7 +7,7 @@ try:
 except ImportError:
     pass
 
-import torch
+# import torch
 import pandas as pd
 import whisper
 import torchaudio
@@ -16,12 +16,15 @@ from tqdm.notebook import tqdm
 from pathlib import Path
 
 
-################### Try speech to text 
-model = whisper.load_model("base")
-audio_path = "./asset/HODL Whisper 1.m4a"
-result = model.transcribe(audio_path)
-print(result["text"])
+################### Speech to text 
+def speech_2_text(audio_path):
+    model = whisper.load_model("base")
+    result = model.transcribe(audio_path)
+    return(result["text"])
 
+audio_path = "./asset/HODL Whisper 1.m4a"
+result = speech_2_text(audio_path)
+print(result)
 
 ###################
 
