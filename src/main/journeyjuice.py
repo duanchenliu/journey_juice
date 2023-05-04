@@ -159,7 +159,7 @@ def play_audio_file(file_path):
 
 
 
-###################### Execution
+###################### Execution ############################################ 
 ### Speech to text ###
 audio_path = record()
 result = speech_2_text(audio_path)
