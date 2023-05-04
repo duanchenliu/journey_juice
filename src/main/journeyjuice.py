@@ -63,7 +63,6 @@ def speech_2_text(audio_path):
 # Function to call chatGPT API with a prompt of your choice 
 def chatGPTCall(prompt):
     cmd = f"""
-    export OPENAI_API_KEY='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' 
     curl https://api.openai.com/v1/chat/completions \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $OPENAI_API_KEY" \
@@ -190,7 +189,7 @@ chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) #
 print(chatGPT_result_locationInfo) 
 
 
-mytext = chatGPT_result_locationInfo + "Journey Juice handpicked event happening nearby. Please check them out in the map. Have fun!"
+mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
 language = 'en'
 output_name = 'speak'
 # convert text to speech and save the audio file 
