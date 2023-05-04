@@ -1,7 +1,7 @@
 # journey_juice
 
-## Dependency 
-Need to run these first: `brew install portaudio`
+## Dependencies
+- PyAudio: `brew install portaudio ffmpeg`
 
 ## Configure
 Under project root directory: journey_juice
