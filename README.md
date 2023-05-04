@@ -1,5 +1,8 @@
 # journey_juice
 
+## Dependency 
+Need to run these first: `brew install portaudio`
+
 ## Configure
 Under project root directory: journey_juice
 1. `python -m venv .venv` if .venv is not create
