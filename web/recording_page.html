@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
   <title>{{ title }}</title>
   <style>
     body {
@@ -32,7 +32,7 @@
 .textl{
     color: green;
     margin-top: 100px;
-    
+
 }
 .bst{
     background: white;
@@ -114,7 +114,6 @@
 		}
 
 		p {
-			
 			font-size: 15px;
 			line-height: 1.5;
 			margin: 5;
@@ -130,9 +129,9 @@
 
             <br>
 
-            <a href="https://www.linkedin.com/in/anant-vashistha/" style="display:block;">
-                <img src="Microphone.png" alt="Transparent Image" alt="Clickable Image" style="border-radius: 50%;" height = "30%" width="10%" >
-              </a>
+            <a style="display:block;">
+                <img id="record-btn" src="Microphone.png" alt="Transparent Image" alt="Clickable Image" style="border-radius: 50%;" height = "30%" width="10%" >
+            </a>
 
               <br><br>
               <p class = "container3"> Taj Mahal</p>
@@ -152,7 +151,7 @@
 
             <br><br>
 
-            <p class = "container2"> This is the information about the place, mainly the chatgpt output.This is the information about the place, mainly the chatgpt output.This is the information about the place, mainly the chatgpt output.This is the information about the place, mainly the chatgpt output.</p>
+            <p class = "container2" id="output"></p>
 
             <br>
 
@@ -165,6 +164,29 @@
             <button class = "rt2" type = "submit"><b>Exit</b></button>
 
         </div>
-          
   </div>
 </center>
+<script>
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'en-US';
+    const outputDiv = document.getElementById('output');
+
+    recognition.addEventListener('result', (event) => {
+        const result = event.results[event.resultIndex];
+        const transcript = result[0].transcript;
+        const p = document.createElement('p');
+        p.textContent = transcript;
+        outputDiv.appendChild(p);
+    });
+
+    setTimeout(() => {
+    recognition.stop();
+    }, 5000);
+
+    const recordBtn = document.getElementById('record-btn');
+    recordBtn.addEventListener('click', () => {
+        recognition.start();
+    });
+</script>
+</body>
+</html>
