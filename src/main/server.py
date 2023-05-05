@@ -37,15 +37,14 @@ from IPython.display import Audio
 from pydub import AudioSegment
 from pydub.playback import play
 
+
 app = Flask(__name__)
 CORS(app)
 
 
-# Keys:
-googlemap_key = 'AIzaSyCqONC34oYyMeq8qhEGp-BCWYFHcpNkLRs' #Anant
-#ChatGPT - Dora - masked
-googleevents_key = "9ec617496aef876ebae248c1ff5ee771ccf9dd4b0762d1524d93f35557196949" # Dora
-
+# get API KEY environmental variables
+googlemap_key = os.environ.get('GOOGLEMAP_KEY')
+googleevents_key = os.environ.get('GOOGLEEVENTS_KEY')
 
 ################### Record audio
 def record():

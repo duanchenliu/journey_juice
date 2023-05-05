@@ -178,7 +178,6 @@
     recognition.lang = 'en-US';
     const outputDiv = document.getElementById('output');
     const audioTextDiv = document.getElementById("audio-text");
-
     recognition.addEventListener('result', (event) => {
         const result = event.results[event.resultIndex];
         const transcript = result[0].transcript;
@@ -270,9 +269,7 @@
 
 
 </script>
-
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqONC34oYyMeq8qhEGp-BCWYFHcpNkLRs"></script>
-
-
+<script async defer src='https://maps.googleapis.com/maps/api/js?key=<key>'></script>
+<!-- https://developers.google.com/maps/documentation/javascript/get-api-key#restrict_key -->
 </body>
 </html>

@@ -162,3 +162,8 @@ cython_debug/
 asset/*
 *.mp3
 *.wav
+
+script/config.bash
+.DS_Store
+node_modules
+src/.DS_Store
