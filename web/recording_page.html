@@ -175,7 +175,7 @@
         const result = event.results[event.resultIndex];
         const transcript = result[0].transcript;
         outputDiv.innerHTML = transcript;
-        fetch('/transcript', {
+        fetch('http://127.0.0.1:5000/transcript', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'

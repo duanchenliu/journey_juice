@@ -41,6 +41,12 @@ app = Flask(__name__)
 CORS(app)
 
 
+# Keys:
+googlemap_key = 'AIzaSyCqONC34oYyMeq8qhEGp-BCWYFHcpNkLRs' #Anant
+#ChatGPT - Dora - masked
+googleevents_key = "9ec617496aef876ebae248c1ff5ee771ccf9dd4b0762d1524d93f35557196949" # Dora
+
+
 ################### Record audio
 def record():
     duration = 5  # seconds
@@ -100,7 +106,7 @@ def get_google_events(location):
     "gl": "us",
     "htichips": "date:week",
     "no_cache": False,
-    "api_key": "9ec617496aef876ebae248c1ff5ee771ccf9dd4b0762d1524d93f35557196949"
+    "api_key": googleevents_key
     }
     search = GoogleSearch(params)
     results = search.get_dict()
@@ -110,9 +116,12 @@ def get_google_events(location):
 
 def event_formatting(events_results):
     print("Hey lovely user, there are %s events happening in your vicinity, journey juice don't want you to compromise on fun."%(len(events_results)))
+    add_lst = []
+    title_lst = []
+    link_lst = []
 
     for i in range(0, len(events_results)):
-        print("**********Event %s**********"%(i+1))
+    #print("**********Event %s**********"%(i+1))
 
         try:
             e_title = events_results[i]['title']
@@ -144,12 +153,18 @@ def event_formatting(events_results):
         except:
             pass
 
-        print("Name = ", e_title)
-        print("Date = ", e_start_date)
-        print("Time = ", e_when)
-        print("Address = ", e_address)
-        print("Description = ", e_description)
-        print("Link = ", e_link)
+        e_address = ', '.join(e_address)
+
+        #print("Name = ", e_title)
+        #print("Date = ", e_start_date)
+        #print("Time = ", e_when)
+        #print("Address = ", e_address)
+        #print("Description = ", e_description)
+        #print("Link = ", e_link)
+        add_lst.append(e_address)
+        title_lst.append(e_title)
+        link_lst.append(e_link)
+    return(add_lst, title_lst,link_lst)
 
 
 ################### Text to speech
@@ -166,53 +181,85 @@ def play_audio_file(file_path):
     # Play the audio file
     play(audio)
 
+################### Map
+def generate_map(add_lst, title_lst, link_lst):
+    # Set up the Google Maps API client
+    gmaps = googlemaps.Client(key=googlemap_key)
+
+    # Define the addresses to geocode
+    addresses = add_lst
+
+    # Geocode each address to get its latitude and longitude
+    locations = []
+    for address in addresses:
+        geocode_result = gmaps.geocode(address)[0]['geometry']['location']
+        lat, lon = geocode_result['lat'], geocode_result['lng']
+        locations.append((lat, lon, address))
+
+    # Create a map centered on the first location
+    m = folium.Map(location=[locations[0][0], locations[0][1]], zoom_start=13, tiles='Stamen Terrain')
+
+    # Add a marker for each location
+    i = 0
+    for location in locations:
+        popup_text = f"<b>Location:</b> {location[2]} <br><b>Title:</b> {title_lst[i]}<br><b>Link:</b> {link_lst[i]}<br><b>Category: </b>"
+        folium.Marker(location=[location[0], location[1]], popup=popup_text, icon=folium.Icon(color='green')).add_to(m)
+        i = i+1
+
+    # # Display the map
+    # m
 
 
 ###################### Execution ############################################
-def main():
-    ### Speech to text ###
-    audio_path = record()
-    result = speech_2_text(audio_path)
-    # process the results to strip '
-    result = result.replace("'", "")
+def main(result):
+    {
+    "English" : "en",
+    "Hindi" : "hi",
+    "Mandarin" : "zh-CN"
+    }
+
+    # ### Speech to text ###
+    # audio_path = record()
+    # result = speech_2_text(audio_path)
+    # # process the results to strip '
+    # result = result.replace("'", "")
 
     ### Chatgpt to extract location ###
     prompt_location_extraction = "Tell the city, state, postal code of location in the sentence. Only return in a (city, state, postal code) format. If no postal code, just return (city, state). If you do not know, say I do not know: "
     print(prompt_location_extraction + result)
     chatGPT_result_location = chatGPTCall(prompt_location_extraction + result) # location (city, state, postal code)
-    print(chatGPT_result_location)
+    print(chatGPT_result_location)  #output 1 -> show on the page, used in the following model
 
     ### Chatgpt to extract location name ###
     prompt_location_name = "Tell me the name of the place in one word. If you do not know, say I do not know: "
     print(prompt_location_name + result)
-    chatGPT_result_name = chatGPTCall(prompt_location_name + result) # location name
-    print(chatGPT_result_name)
-
-    ### Events ###
-    event_output = get_google_events(chatGPT_result_location)
-    event_formatting(event_output)
+    chatGPT_result_name = chatGPTCall(prompt_location_name + result) # location name: times square
+    print(chatGPT_result_name)  #output 2 -> not show on the page, used in the following model
 
     ### Text2Speech ###
     # Call ChatGPT for travel recommendation
     travel_prompt = "Tell me about this famous travel location, its history and significance, in fifty words: "
     chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
-    print(chatGPT_result_locationInfo) # output 1: text box
-
+    print(chatGPT_result_locationInfo)  # front end
 
     mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
-    language = 'en'
+    language = 'en' # TODO: create dictionary to map the language code to language name provided by the user.
     output_name = 'speak'
     # convert text to speech and save the audio file
     audio_file = text2speech(mytext, language, output_name)
     # play the saved audio
-    play_audio_file(audio_file) # output 2: audio
+    play_audio_file(audio_file)
 
+    ### Events ###
+    event_output = get_google_events(chatGPT_result_location)
+    add_lst, title_lst, link_lst = event_formatting(event_output)
+    generate_map(add_lst, title_lst, link_lst)
 
 @app.route('/transcript', methods=['POST'])
 def transcript():
     data = request.json
     transcript = data['transcript']
-    print(transcript)
+    main(transcript)
     return jsonify({'message': 'hehe'})
 
 if __name__ == '__main__':
