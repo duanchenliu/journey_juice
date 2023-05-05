@@ -205,6 +205,12 @@ def generate_map(add_lst, title_lst, link_lst):
 
 
 ###################### Execution ############################################ 
+{
+"English" : "en",
+"Hindi" : "hi",
+"Mandarin" : "zh-CN"
+}
+
 ### Speech to text ###
 audio_path = record()
 result = speech_2_text(audio_path)
