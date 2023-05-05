@@ -157,8 +157,6 @@ def play_audio_file(file_path):
     # Play the audio file
     play(audio)
 
-
-
 ###################### Execution ############################################ 
 ### Speech to text ###
 audio_path = record()
@@ -170,24 +168,19 @@ result = result.replace("'", "")
 prompt_location_extraction = "Tell the city, state, postal code of location in the sentence. Only return in a (city, state, postal code) format. If no postal code, just return (city, state). If you do not know, say I do not know: "
 print(prompt_location_extraction + result)
 chatGPT_result_location = chatGPTCall(prompt_location_extraction + result) # location (city, state, postal code) 
-print(chatGPT_result_location) 
+print(chatGPT_result_location)  #output 1 -> show on the page, used in the following model
 
 ### Chatgpt to extract location name ###
 prompt_location_name = "Tell me the name of the place in one word. If you do not know, say I do not know: "
 print(prompt_location_name + result)
-chatGPT_result_name = chatGPTCall(prompt_location_name + result) # location name 
-print(chatGPT_result_name) 
-
-### Events ###
-event_output = get_google_events(chatGPT_result_location)
-event_formatting(event_output)
+chatGPT_result_name = chatGPTCall(prompt_location_name + result) # location name: times square
+print(chatGPT_result_name)  #output 2 -> not show on the page, used in the following model
 
 ### Text2Speech ###
 # Call ChatGPT for travel recommendation 
 travel_prompt = "Tell me about this famous travel location, its history and significance, in fifty words: " 
 chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
-print(chatGPT_result_locationInfo) 
-
+print(chatGPT_result_locationInfo)  # front end 
 
 mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
 language = 'en'
@@ -195,4 +188,8 @@ output_name = 'speak'
 # convert text to speech and save the audio file 
 audio_file = text2speech(mytext, language, output_name)
 # play the saved audio 
-play_audio_file(audio_file)
+play_audio_file(audio_file) 
+
+### Events ###
+event_output = get_google_events(chatGPT_result_location)
+event_formatting(event_output)
