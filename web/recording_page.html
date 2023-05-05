@@ -134,7 +134,7 @@
             </a>
 
               <br><br>
-              <p class = "container3"> Taj Mahal</p>
+              <p class = "container3" id="output"></p>
 
 
               <form class="form">
@@ -151,7 +151,7 @@
 
             <br><br>
 
-            <p class = "container2" id="output"></p>
+            <p class = "container2">This is the placeholder for text the placeholder for text the placeholder for text.</p>
 
             <br>
 
@@ -174,19 +174,26 @@
     recognition.addEventListener('result', (event) => {
         const result = event.results[event.resultIndex];
         const transcript = result[0].transcript;
-        const p = document.createElement('p');
-        p.textContent = transcript;
-        outputDiv.appendChild(p);
+        outputDiv.innerHTML = transcript;
+        fetch('/transcript', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ transcript: transcript })
+        });
     });
 
     setTimeout(() => {
-    recognition.stop();
+        recognition.stop();
     }, 5000);
 
     const recordBtn = document.getElementById('record-btn');
     recordBtn.addEventListener('click', () => {
         recognition.start();
     });
+
+
 </script>
 </body>
 </html>
