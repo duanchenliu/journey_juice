@@ -146,17 +146,24 @@
                     <option value="option3">Mandarin</option>
                 </select>
                 <br>
-                <button class = "rt1" type = "submit"><b>Launch</b></button>
+                <button class = "rt1" type = "submit"><b>TBD: Launch</b></button>
             </form>
 
             <br><br>
 
-            <p class = "container2">This is the placeholder for text the placeholder for text the placeholder for text.</p>
+            <p class = "container2" id="audio-text">This is a beautiful world - explore it!</p>
 
             <br>
 
-            <div class="map-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.0691957525846!2d-0.1413948842236162!3d51.50100857963863!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487604ce2ba14887%3A0xf5f5b5e5ef5b5e5!2sBuckingham+Palace!5e0!3m2!1sen!2sus!4v1565711377453!5m2!1sen!2sus"></iframe>
+            <div id="map" class="map-container">
+                <!-- <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.0691957525846!2d-0.1413948842236162!3d51.50100857963863!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487604ce2ba14887%3A0xf5f5b5e5ef5b5e5!2sBuckingham+Palace!5e0!3m2!1sen!2sus!4v1565711377453!5m2!1sen!2sus"></iframe> -->
+                <style>
+                    #map {
+                        height: 1500px;
+                        width: 1500px;
+                        margin: 20px auto;
+                    }
+                </style>
             </div>
 
             <br><br>
@@ -170,6 +177,7 @@
     const recognition = new webkitSpeechRecognition();
     recognition.lang = 'en-US';
     const outputDiv = document.getElementById('output');
+    const audioTextDiv = document.getElementById("audio-text");
 
     recognition.addEventListener('result', (event) => {
         const result = event.results[event.resultIndex];
@@ -181,8 +189,75 @@
             'Content-Type': 'application/json'
             },
             body: JSON.stringify({ transcript: transcript })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            console.log(data);
+
+            const { audio, event } = data;
+            const { text, language, output_name } = audio;
+            const { add_lst, title_lst, link_lst } = event;
+            audioTextDiv.innerHTML = text
+            // TODO: render map
+            // Create a new Google Map object centered on the user's current location
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 1000,
+                center: new google.maps.LatLng(42.3470164, -71.095844),
+            });
+
+            // Create a marker for each event and add it to the map
+            const markers = add_lst.map((address, i) => {
+                const marker = new google.maps.Marker({
+                    position: { lat: 42.3470164, lng: -71.095844 },
+                    map,
+                });
+
+                // Get the latitude and longitude for the event address
+                const geocoder = new google.maps.Geocoder();
+
+                geocoder.geocode({ 'address': address }, function(results, status) {
+                    console.log(address)
+                    if (status === "OK") {
+                        const location = results[0].geometry.location;
+                        marker.setPosition({ lat: location.lat(), lng: location.lng() });
+                    }
+                    else {
+                        reject('Geocode was not successful for the following reason: ' + status);
+                    }
+                });
+
+                // Create an info window for the event that displays the title, location, and link
+                const contentString = `<h3>${title_lst[i]}</h3><p>${address}</p><p><a href="${link_lst[i]}" target="_blank">More info</a></p>`;
+                const infowindow = new google.maps.InfoWindow({
+                content: contentString,
+                });
+
+                // Add an event listener to show the info window when the user hovers over the marker
+                marker.addListener("mouseover", () => {
+                infowindow.open(map, marker);
+                });
+
+                // Add an event listener to hide the info window when the user moves the mouse away from the marker
+                marker.addListener("mouseout", () => {
+                infowindow.close();
+                });
+
+                return marker;
+            });
+
+            // Set the map bounds to include all markers
+            const bounds = new google.maps.LatLngBounds();
+            markers.forEach(marker => {
+                bounds.extend(marker.getPosition());
+            });
+            map.fitBounds(bounds);
+            })
+            // TODO: audio output
+
         });
-    });
 
     setTimeout(() => {
         recognition.stop();
@@ -195,5 +270,9 @@
 
 
 </script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqONC34oYyMeq8qhEGp-BCWYFHcpNkLRs"></script>
+
+
 </body>
 </html>

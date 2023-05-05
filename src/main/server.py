@@ -240,27 +240,43 @@ def main(result):
     # Call ChatGPT for travel recommendation
     travel_prompt = "Tell me about this famous travel location, its history and significance, in fifty words: "
     chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
-    print(chatGPT_result_locationInfo)  # front end
+    print(chatGPT_result_locationInfo)  # output 1: front end
 
-    mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
+    ## TODO: render audio output in the ft
+    mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun loser!"
     language = 'en' # TODO: create dictionary to map the language code to language name provided by the user.
     output_name = 'speak'
-    # convert text to speech and save the audio file
-    audio_file = text2speech(mytext, language, output_name)
-    # play the saved audio
-    play_audio_file(audio_file)
+    # # convert text to speech and save the audio file
+    # audio_file = text2speech(mytext, language, output_name)
+    # # play the saved audio
+    # play_audio_file(audio_file)
+    audio = {
+        "text": mytext,
+        "language": language,
+        "output_name": output_name
+    }
 
     ### Events ###
+    ## TODO: render
     event_output = get_google_events(chatGPT_result_location)
     add_lst, title_lst, link_lst = event_formatting(event_output)
-    generate_map(add_lst, title_lst, link_lst)
+    # generate_map(add_lst, title_lst, link_lst)
+    event = {
+        'add_lst': add_lst,
+        'title_lst': title_lst,
+        'link_lst': link_lst
+    }
+    return {
+        "audio": audio,
+        "event": event
+    }
 
 @app.route('/transcript', methods=['POST'])
 def transcript():
     data = request.json
     transcript = data['transcript']
-    main(transcript)
-    return jsonify({'message': 'hehe'})
+    response = main(transcript)
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run()
