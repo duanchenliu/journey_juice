@@ -112,8 +112,10 @@ def get_google_events(location):
     }
     search = GoogleSearch(params)
     results = search.get_dict()
-    events_results = results["events_results"]
-
+    try:
+        events_results = results["events_results"] # TODO: handle invalid input
+    except KeyError:
+        return []
     return events_results
 
 def event_formatting(events_results):
