@@ -37,6 +37,9 @@ from IPython.display import Audio
 from pydub import AudioSegment
 from pydub.playback import play
 
+# Map
+import googlemaps
+import folium
 
 app = Flask(__name__)
 CORS(app)
@@ -181,7 +184,7 @@ def play_audio_file(file_path):
     play(audio)
 
 ################### Map
-def generate_map(add_lst, title_lst, link_lst):
+def geocode_map(add_lst, title_lst, link_lst):
     # Set up the Google Maps API client
     gmaps = googlemaps.Client(key=googlemap_key)
 
@@ -195,15 +198,16 @@ def generate_map(add_lst, title_lst, link_lst):
         lat, lon = geocode_result['lat'], geocode_result['lng']
         locations.append((lat, lon, address))
 
+    return locations
     # Create a map centered on the first location
-    m = folium.Map(location=[locations[0][0], locations[0][1]], zoom_start=13, tiles='Stamen Terrain')
+    # m = folium.Map(location=[locations[0][0], locations[0][1]], zoom_start=13, tiles='Stamen Terrain')
 
-    # Add a marker for each location
-    i = 0
-    for location in locations:
-        popup_text = f"<b>Location:</b> {location[2]} <br><b>Title:</b> {title_lst[i]}<br><b>Link:</b> {link_lst[i]}<br><b>Category: </b>"
-        folium.Marker(location=[location[0], location[1]], popup=popup_text, icon=folium.Icon(color='green')).add_to(m)
-        i = i+1
+    # # Add a marker for each location
+    # i = 0
+    # for location in locations:
+    #     popup_text = f"<b>Location:</b> {location[2]} <br><b>Title:</b> {title_lst[i]}<br><b>Link:</b> {link_lst[i]}<br><b>Category: </b>"
+    #     folium.Marker(location=[location[0], location[1]], popup=popup_text, icon=folium.Icon(color='green')).add_to(m)
+    #     i = i+1
 
     # # Display the map
     # m
@@ -242,7 +246,7 @@ def main(result):
     print(chatGPT_result_locationInfo)  # output 1: front end
 
     ## TODO: render audio output in the ft
-    mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun loser!"
+    mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
     language = 'en' # TODO: create dictionary to map the language code to language name provided by the user.
     output_name = 'speak'
     # # convert text to speech and save the audio file
@@ -256,14 +260,14 @@ def main(result):
     }
 
     ### Events ###
-    ## TODO: render
     event_output = get_google_events(chatGPT_result_location)
     add_lst, title_lst, link_lst = event_formatting(event_output)
-    # generate_map(add_lst, title_lst, link_lst)
+    locations = geocode_map(add_lst, title_lst, link_lst)
     event = {
         'add_lst': add_lst,
         'title_lst': title_lst,
-        'link_lst': link_lst
+        'link_lst': link_lst,
+        'locations': locations
     }
     return {
         "audio": audio,

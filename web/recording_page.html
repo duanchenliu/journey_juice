@@ -194,55 +194,56 @@
             }
             return response.json();
         }).then(data => {
-            console.log(data);
-
             const { audio, event } = data;
             const { text, language, output_name } = audio;
-            const { add_lst, title_lst, link_lst } = event;
+            const { add_lst, title_lst, link_lst, locations } = event;
             audioTextDiv.innerHTML = text
-            // TODO: render map
+
+            // audio output
+            var utterance = new SpeechSynthesisUtterance();
+            utterance.lang = "en-US";
+            utterance.text = text;
+
+            // set the voice and other options (optional)
+            var voices = window.speechSynthesis.getVoices();
+            utterance.voice = voices[1];
+            utterance.pitch = 1;
+            utterance.rate = 0.8;
+
+            // play the utterance
+            window.speechSynthesis.speak(utterance);
             // Create a new Google Map object centered on the user's current location
             const map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 1000,
-                center: new google.maps.LatLng(42.3470164, -71.095844),
+                center: new google.maps.LatLng(locations[0][0], locations[0][1]),
             });
 
             // Create a marker for each event and add it to the map
             const markers = add_lst.map((address, i) => {
                 const marker = new google.maps.Marker({
-                    position: { lat: 42.3470164, lng: -71.095844 },
+                    position: { lat: locations[0][0], lng: locations[0][1] },
                     map,
                 });
 
                 // Get the latitude and longitude for the event address
                 const geocoder = new google.maps.Geocoder();
-
-                geocoder.geocode({ 'address': address }, function(results, status) {
-                    console.log(address)
-                    if (status === "OK") {
-                        const location = results[0].geometry.location;
-                        marker.setPosition({ lat: location.lat(), lng: location.lng() });
-                    }
-                    else {
-                        reject('Geocode was not successful for the following reason: ' + status);
-                    }
-                });
+                marker.setPosition({ lat: locations[i][0], lng: locations[i][1] });
 
                 // Create an info window for the event that displays the title, location, and link
                 const contentString = `<h3>${title_lst[i]}</h3><p>${address}</p><p><a href="${link_lst[i]}" target="_blank">More info</a></p>`;
                 const infowindow = new google.maps.InfoWindow({
-                content: contentString,
+                    content: contentString,
                 });
 
                 // Add an event listener to show the info window when the user hovers over the marker
                 marker.addListener("mouseover", () => {
-                infowindow.open(map, marker);
+                    infowindow.open(map, marker);
                 });
 
-                // Add an event listener to hide the info window when the user moves the mouse away from the marker
-                marker.addListener("mouseout", () => {
-                infowindow.close();
-                });
+                // // Add an event listener to hide the info window when the user moves the mouse away from the marker
+                // marker.addListener("mouseout", () => {
+                //     infowindow.close();
+                // });
 
                 return marker;
             });
@@ -254,8 +255,6 @@
             });
             map.fitBounds(bounds);
             })
-            // TODO: audio output
-
         });
 
     setTimeout(() => {
@@ -269,7 +268,6 @@
 
 
 </script>
-<script async defer src='https://maps.googleapis.com/maps/api/js?key=<key>'></script>
-<!-- https://developers.google.com/maps/documentation/javascript/get-api-key#restrict_key -->
+<script async defer src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBhACNNUhALy4JP05S3nxAsd0XCTrRcNHQ'></script>
 </body>
 </html>
