@@ -241,7 +241,7 @@ def main(result):
 
     ### Text2Speech ###
     # Call ChatGPT for travel recommendation
-    travel_prompt = "Tell me about this famous travel location, its history and significance, in fifty words: "
+    travel_prompt = "Tell me about this famous travel location, its history and significance, in fifty words. If you cannot identify the location, please say please reenter a valid location: "
     chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
     print(chatGPT_result_locationInfo)  # output 1: front end
 
