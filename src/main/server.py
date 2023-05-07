@@ -9,7 +9,7 @@ from tqdm.notebook import tqdm
 from pathlib import Path
 from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
-from time import sleep
+import time
 import os.path
 import json
 
@@ -288,6 +288,8 @@ def main(result):
 
 @app.route('/transcript', methods=['POST'])
 def transcript():
+    with open('./result.json', 'w') as f:
+        json.dump({}, f)
     data = request.json
     transcript = data['transcript']
     response = main(transcript)
@@ -304,16 +306,19 @@ def transcript():
 @app.route('/result', methods=['GET'])
 def result():
     response = {}
+    start_time = time.time()
     with open('./result.json', 'r') as f:
-        while len(response) == 0:
-            sleep(1)
+        while len(response) == 0 and time.time() - start_time < 5:
+            time.sleep(1)
             try:
                 response = json.load(f)
             except json.decoder.JSONDecodeError:
                 pass
                 # abort(400, description='Bad input: audio field is missing or invalid')
-    with open('./result.json', 'w') as f:
-        json.dump({}, f)
+            print("still loading...")
+    if len(response) > 0:
+        with open('./result.json', 'w') as f:
+            json.dump({}, f)
     return jsonify(response)
 
 if __name__ == '__main__':
