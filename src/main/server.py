@@ -258,7 +258,7 @@ def main(result):
     if not chatGPT_result_locationInfo:
         return
     ## TODO: render audio output in the ft
-    mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
+    mytext = chatGPT_result_locationInfo + " Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
     language = 'en' # TODO: create dictionary to map the language code to language name provided by the user.
     output_name = 'speak'
     # # convert text to speech and save the audio file
