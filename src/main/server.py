@@ -244,7 +244,7 @@ def main(result):
         return
 
     ### Chatgpt to extract location name ###
-    prompt_location_name = "Tell me the name of the place in a short phrase no longer than 5 words. If you do not know, say I do not know: "
+    prompt_location_name = "Tell me the name of the place in a short phrase no longer than 5 words. If you do not know, say I do not know. You can either say the name of the place or I don't know: "
     print(prompt_location_name + result)
     chatGPT_result_name = chatGPTCall(prompt_location_name + result) # location name: times square
     print(chatGPT_result_name)  #output 2 -> not show on the page, used in the following model
@@ -252,13 +252,13 @@ def main(result):
         return
     ### Text2Speech ###
     # Call ChatGPT for travel recommendation
-    travel_prompt = "Tell me about this location, its history and significance, in fifty words. If you cannot identify the location, please say please reenter a valid location: "
+    travel_prompt = "Tell me about this place, its history and significance, in fifty words. If you don't know, please say please reenter a valid location: "
     chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
-    print(chatGPT_result_locationInfo)  # output 1: front end
+    print(chatGPT_result_locationInfo)  
     if not chatGPT_result_locationInfo:
         return
     ## TODO: render audio output in the ft
-    mytext = chatGPT_result_locationInfo + " Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
+    mytext = chatGPT_result_locationInfo
     language = 'en' # TODO: create dictionary to map the language code to language name provided by the user.
     output_name = 'speak'
     # # convert text to speech and save the audio file
