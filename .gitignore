@@ -167,3 +167,4 @@ script/config.bash
 .DS_Store
 node_modules
 src/.DS_Store
+result.json
