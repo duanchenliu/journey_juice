@@ -244,7 +244,7 @@ def main(result):
         return
 
     ### Chatgpt to extract location name ###
-    prompt_location_name = "Tell me the name of the place in a short phrase no longer than 5 words. If you do not know, say I do not know. You can either say the name of the place or I don't know: "
+    prompt_location_name = "Tell me the name of the place in a short phrase no longer than 5 words. If you do not know, say I do not know. You can either say the name of the place or I do not know: "
     print(prompt_location_name + result)
     chatGPT_result_name = chatGPTCall(prompt_location_name + result) # location name: times square
     print(chatGPT_result_name)  #output 2 -> not show on the page, used in the following model
@@ -252,9 +252,9 @@ def main(result):
         return
     ### Text2Speech ###
     # Call ChatGPT for travel recommendation
-    travel_prompt = "Tell me about this place, its history and significance, in fifty words. If you don't know, please say please reenter a valid location: "
+    travel_prompt = "Tell me about this place, its history and significance, in fifty words. If you do not know, please say please reenter a valid location: "
     chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
-    print(chatGPT_result_locationInfo)  
+    print(chatGPT_result_locationInfo)
     if not chatGPT_result_locationInfo:
         return
     ## TODO: render audio output in the ft
@@ -293,9 +293,10 @@ def transcript():
     data = request.json
     transcript = data['transcript']
     response = main(transcript)
-    response['transcript'] = transcript
     if not response:
         abort(400, description='Bad input: audio field is missing or invalid')
+    response['transcript'] = transcript
+
     with open("./result.json", "w") as result:
         try:
             result.write(response.to_json())
