@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
+  <link rel="shortcut icon" type="image/png" href="favicon.ico"/>
   <title>{{ title }}</title>
   <style>
     body {
@@ -146,7 +147,7 @@
                     <option value="option3">Mandarin</option>
                 </select>
                 <br>
-                <button class = "rt1" type = "submit"><b>TBD: Launch</b></button>
+                <button class = "rt1" id="explore" type = "submit"><b>Explore</b></button>
             </form>
 
             <br><br>
@@ -178,6 +179,8 @@
     recognition.lang = 'en-US';
     const outputDiv = document.getElementById('output');
     const audioTextDiv = document.getElementById("audio-text");
+    const exploreButton = document.getElementById("explore");
+
     recognition.addEventListener('result', (event) => {
         const result = event.results[event.resultIndex];
         const transcript = result[0].transcript;
@@ -189,14 +192,40 @@
             },
             body: JSON.stringify({ transcript: transcript })
         }).then(response => {
+            if (!response.ok || response.status === 400) {
+                throw new Error("Bad Request");
+            }
+            return response.json();
+        }).then(response => {
+            // return response.json();
+            console.log(response)
+        }).catch(error => {
+            console.error('Error:', error);
+        })
+    });
+
+    setTimeout(() => {
+        recognition.stop();
+    }, 5000);
+
+    const recordBtn = document.getElementById('record-btn');
+    recordBtn.addEventListener('click', () => {
+        recognition.start();
+    });
+
+    exploreButton.addEventListener("click", function() {
+        event.preventDefault();
+        fetch('http://127.0.0.1:5000/result'
+        ).then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error("Bad Request");
             }
             return response.json();
         }).then(data => {
-            const { audio, event } = data;
+            const { transcript, audio, event } = data;
             const { text, language, output_name } = audio;
             const { add_lst, title_lst, link_lst, locations } = event;
+            outputDiv.innerHTML = transcript;
             audioTextDiv.innerHTML = text
 
             // audio output
@@ -214,7 +243,7 @@
             window.speechSynthesis.speak(utterance);
             // Create a new Google Map object centered on the user's current location
             const map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 1000,
+                zoom: 500,
                 center: new google.maps.LatLng(locations[0][0], locations[0][1]),
             });
 
@@ -254,16 +283,9 @@
                 bounds.extend(marker.getPosition());
             });
             map.fitBounds(bounds);
-            })
-        });
-
-    setTimeout(() => {
-        recognition.stop();
-    }, 5000);
-
-    const recordBtn = document.getElementById('record-btn');
-    recordBtn.addEventListener('click', () => {
-        recognition.start();
+        }).catch(error => {
+            console.error('Error:', error);
+        })
     });
 
 

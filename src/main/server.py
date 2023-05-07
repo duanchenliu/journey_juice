@@ -7,10 +7,9 @@ import whisper
 import torchaudio
 from tqdm.notebook import tqdm
 from pathlib import Path
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
-import datetime
-import random
+from time import sleep
 import os.path
 import json
 
@@ -90,11 +89,18 @@ def chatGPTCall(prompt):
     }}'
     """
     # Run the command and capture the output
-    output = subprocess.check_output(cmd, shell=True)
-
+    try:
+        output = subprocess.check_output(cmd, shell=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}: {e.output}")
+        return
+    # handle the error here
     response_str = output.decode('utf-8')
     response_dict = json.loads(response_str)
-    foutput = response_dict['choices'][0]['message']['content']
+    try:
+        foutput = response_dict['choices'][0]['message']['content']
+    except KeyError:
+        return
     return(foutput)
 
 
@@ -234,19 +240,23 @@ def main(result):
     print(prompt_location_extraction + result)
     chatGPT_result_location = chatGPTCall(prompt_location_extraction + result) # location (city, state, postal code)
     print(chatGPT_result_location)  #output 1 -> show on the page, used in the following model
+    if not chatGPT_result_location:
+        return
 
     ### Chatgpt to extract location name ###
-    prompt_location_name = "Tell me the name of the place in one word. If you do not know, say I do not know: "
+    prompt_location_name = "Tell me the name of the place in a short phrase no longer than 5 words. If you do not know, say I do not know: "
     print(prompt_location_name + result)
     chatGPT_result_name = chatGPTCall(prompt_location_name + result) # location name: times square
     print(chatGPT_result_name)  #output 2 -> not show on the page, used in the following model
-
+    if not chatGPT_result_name:
+        return
     ### Text2Speech ###
     # Call ChatGPT for travel recommendation
-    travel_prompt = "Tell me about this famous travel location, its history and significance, in fifty words. If you cannot identify the location, please say please reenter a valid location: "
+    travel_prompt = "Tell me about this location, its history and significance, in fifty words. If you cannot identify the location, please say please reenter a valid location: "
     chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
     print(chatGPT_result_locationInfo)  # output 1: front end
-
+    if not chatGPT_result_locationInfo:
+        return
     ## TODO: render audio output in the ft
     mytext = chatGPT_result_locationInfo + "Journey Juice handpicked for you event happening nearby. Please check them out in the map. Have fun!"
     language = 'en' # TODO: create dictionary to map the language code to language name provided by the user.
@@ -281,6 +291,29 @@ def transcript():
     data = request.json
     transcript = data['transcript']
     response = main(transcript)
+    response['transcript'] = transcript
+    if not response:
+        abort(400, description='Bad input: audio field is missing or invalid')
+    with open("./result.json", "w") as result:
+        try:
+            result.write(response.to_json())
+        except AttributeError:
+            result.write(json.dumps(response))
+    return jsonify(response)
+
+@app.route('/result', methods=['GET'])
+def result():
+    response = {}
+    with open('./result.json', 'r') as f:
+        while len(response) == 0:
+            sleep(1)
+            try:
+                response = json.load(f)
+            except json.decoder.JSONDecodeError:
+                pass
+                # abort(400, description='Bad input: audio field is missing or invalid')
+    with open('./result.json', 'w') as f:
+        json.dump({}, f)
     return jsonify(response)
 
 if __name__ == '__main__':
