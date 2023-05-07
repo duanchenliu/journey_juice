@@ -142,9 +142,9 @@
                 <br>
                 <label for="options">Select your language:</label>
                 <select id="options" name="options">
-                    <option value="option1">English</option>
-                    <option value="option2">Hindi</option>
-                    <option value="option3">Mandarin</option>
+                    <option value="en-US">English</option>
+                    <option value="hi-IN">Hindi</option>
+                    <option value="zh-CN">Mandarin</option>
                 </select>
                 <br>
                 <button class = "rt1" id="explore" type = "submit"><b>Explore</b></button>
@@ -180,6 +180,9 @@
     const outputDiv = document.getElementById('output');
     const audioTextDiv = document.getElementById("audio-text");
     const exploreButton = document.getElementById("explore");
+
+    var selectElement = document.querySelector('#options');
+    var selectedValue = selectElement.value;
 
     recognition.addEventListener('result', (event) => {
         const result = event.results[event.resultIndex];
@@ -230,7 +233,7 @@
 
             // audio output
             var utterance = new SpeechSynthesisUtterance();
-            utterance.lang = "en-US";
+            utterance.lang = selectedValue;
             utterance.text = text;
 
             // set the voice and other options (optional)

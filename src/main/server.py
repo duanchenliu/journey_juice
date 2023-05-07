@@ -307,15 +307,18 @@ def transcript():
 def result():
     response = {}
     start_time = time.time()
-    with open('./result.json', 'r') as f:
-        while len(response) == 0 and time.time() - start_time < 5:
-            time.sleep(1)
-            try:
-                response = json.load(f)
-            except json.decoder.JSONDecodeError:
-                pass
-                # abort(400, description='Bad input: audio field is missing or invalid')
-            print("still loading...")
+    try:
+        with open('./result.json', 'r') as f:
+            while len(response) == 0 and time.time() - start_time < 5:
+                time.sleep(1)
+                try:
+                    response = json.load(f)
+                except json.decoder.JSONDecodeError:
+                    pass
+                    # abort(400, description='Bad input: audio field is missing or invalid')
+                print("still loading...")
+    except FileNotFoundError:
+        abort(400, description='Bad input: audio field is missing or invalid')
     if len(response) > 0:
         with open('./result.json', 'w') as f:
             json.dump({}, f)
