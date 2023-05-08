@@ -140,7 +140,7 @@
 
               <form class="form">
                 <br>
-                <label for="options">Select your language:</label>
+                <label for="options">Select output language:</label>
                 <select id="options" name="options">
                     <option value="en-US">English</option>
                     <option value="hi-IN">Hindi</option>
@@ -180,9 +180,7 @@
     const outputDiv = document.getElementById('output');
     const audioTextDiv = document.getElementById("audio-text");
     const exploreButton = document.getElementById("explore");
-
-    var selectElement = document.querySelector('#options');
-    var selectedValue = selectElement.value;
+    var utterance = new SpeechSynthesisUtterance();
 
     recognition.addEventListener('result', (event) => {
         const result = event.results[event.resultIndex];
@@ -218,21 +216,30 @@
 
     exploreButton.addEventListener("click", function() {
         event.preventDefault();
-        fetch('http://127.0.0.1:5000/result'
-        ).then(response => {
+        var selectElement = document.getElementById('options');
+        var selectedValue = selectElement.value;
+
+        fetch('http://127.0.0.1:5000/result', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ language: selectedValue })
+        }).then(response => {
             if (!response.ok) {
                 throw new Error("Bad Request");
             }
             return response.json();
         }).then(data => {
             const { transcript, audio, event } = data;
-            const { text, language, output_name } = audio;
+            const { text } = audio;
             const { add_lst, title_lst, link_lst, locations } = event;
             outputDiv.innerHTML = transcript;
-            audioTextDiv.innerHTML = text
 
             // audio output
-            var utterance = new SpeechSynthesisUtterance();
+            audioTextDiv.innerHTML = text
+            var mandarinVoice = speechSynthesis.getVoices().find(voice => voice.lang === selectedValue);
+            utterance.voice = mandarinVoice
             utterance.lang = selectedValue;
             utterance.text = text;
 
@@ -240,7 +247,7 @@
             var voices = window.speechSynthesis.getVoices();
             utterance.voice = voices[0];
             utterance.pitch = 1;
-            utterance.rate = 0.8;
+            utterance.rate = 0.9;
 
             // play the utterance
             window.speechSynthesis.speak(utterance);

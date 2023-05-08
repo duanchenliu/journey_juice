@@ -222,6 +222,23 @@ def geocode_map(add_lst, title_lst, link_lst):
 
 
 ###################### Execution ############################################
+def output(chatGPT_result_name, language):
+    ### Text2Speech ###
+    travel_prompt = f"In {language} language. Tell me about {chatGPT_result_name}, its history and significance, in one paragraph. If you do not know, please say this: please reenter a valid location."
+    chatGPT_result_locationInfo = chatGPTCall(travel_prompt) # Location intro
+    print(chatGPT_result_locationInfo)
+    if not chatGPT_result_locationInfo:
+        return
+
+    # # convert text to speech and save the audio file
+    # audio_file = text2speech(mytext, language, output_name)
+    # # play the saved audio
+    # play_audio_file(audio_file)
+    audio = {
+        "text": chatGPT_result_locationInfo
+    }
+    return audio
+
 def main(result):
     {
     "English" : "en",
@@ -250,26 +267,6 @@ def main(result):
     print(chatGPT_result_name)  #output 2 -> not show on the page, used in the following model
     if not chatGPT_result_name:
         return
-    ### Text2Speech ###
-    # Call ChatGPT for travel recommendation
-    travel_prompt = "Tell me about this place, its history and significance, in fifty words. If you do not know, please say please reenter a valid location: "
-    chatGPT_result_locationInfo = chatGPTCall(travel_prompt + chatGPT_result_name) # Location intro
-    print(chatGPT_result_locationInfo)
-    if not chatGPT_result_locationInfo:
-        return
-    ## TODO: render audio output in the ft
-    mytext = chatGPT_result_locationInfo
-    language = 'en' # TODO: create dictionary to map the language code to language name provided by the user.
-    output_name = 'speak'
-    # # convert text to speech and save the audio file
-    # audio_file = text2speech(mytext, language, output_name)
-    # # play the saved audio
-    # play_audio_file(audio_file)
-    audio = {
-        "text": mytext,
-        "language": language,
-        "output_name": output_name
-    }
 
     ### Events ###
     event_output = get_google_events(chatGPT_result_location)
@@ -282,8 +279,8 @@ def main(result):
         'locations': locations
     }
     return {
-        "audio": audio,
-        "event": event
+        "event": event,
+        "chatGPT_result_name": chatGPT_result_name
     }
 
 @app.route('/transcript', methods=['POST'])
@@ -304,8 +301,10 @@ def transcript():
             result.write(json.dumps(response))
     return jsonify(response)
 
-@app.route('/result', methods=['GET'])
+@app.route('/result', methods=['POST'])
 def result():
+    data = request.json
+    language = data['language']
     response = {}
     start_time = time.time()
     try:
@@ -314,15 +313,20 @@ def result():
                 time.sleep(1)
                 try:
                     response = json.load(f)
+                    chatGPT_result_name = response["chatGPT_result_name"]
+                    text = output(chatGPT_result_name, language)
+                    response["audio"] = text
+                except KeyError:
+                    pass
                 except json.decoder.JSONDecodeError:
                     pass
                     # abort(400, description='Bad input: audio field is missing or invalid')
                 print("still loading...")
     except FileNotFoundError:
         abort(400, description='Bad input: audio field is missing or invalid')
-    if len(response) > 0:
-        with open('./result.json', 'w') as f:
-            json.dump({}, f)
+    # if len(response) > 0:
+    #     with open('./result.json', 'w') as f:
+    #         json.dump({}, f)
     return jsonify(response)
 
 if __name__ == '__main__':
