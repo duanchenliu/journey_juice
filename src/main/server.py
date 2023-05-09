@@ -100,7 +100,7 @@ def chatGPTCall(prompt):
     URL = "https://api.openai.com/v1/chat/completions"
     PARAMS = {
         "model": "gpt-3.5-turbo",
-        "messages": [{{"role": "user", "content": "{prompt}"}}],
+        "messages": [{{"role": "user", "content": prompt}}],
         "temperature": 0.9
     }
     r = requests.get(url = URL, params = PARAMS)
