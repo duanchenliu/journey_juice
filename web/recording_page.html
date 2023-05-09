@@ -186,7 +186,7 @@
         const result = event.results[event.resultIndex];
         const transcript = result[0].transcript;
         outputDiv.innerHTML = transcript;
-        fetch('http://127.0.0.1:5000/transcript', {
+        fetch('https://api.journeyjuice.live/transcript', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
@@ -219,7 +219,7 @@
         var selectElement = document.getElementById('options');
         var selectedValue = selectElement.value;
 
-        fetch('http://127.0.0.1:5000/result', {
+        fetch('https://api.journeyjuice.live/result', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
