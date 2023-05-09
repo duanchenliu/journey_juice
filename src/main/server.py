@@ -12,6 +12,7 @@ from flask_cors import CORS
 import time
 import os.path
 import json
+import requests
 
 try:
     import tensorflow
@@ -78,13 +79,13 @@ def speech_2_text(audio_path):
 ################### ChatGPT API Call
 # Function to call chatGPT API with a prompt of your choice
 def chatGPTCall(prompt):
-    api_key = "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"  # Replace with your actual API key
-    import requests
+    # Replace with your actual API key
+    
     url = "https://api.openai.com/v1/chat/completions"
     
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
+        "Authorization": f"Bearer {OPENAI_API_KEY}"
     }
     
     data = {
