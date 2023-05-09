@@ -218,6 +218,7 @@
         event.preventDefault();
         var selectElement = document.getElementById('options');
         var selectedValue = selectElement.value;
+        this.innerHTML = "Loading..."
 
         fetch('https://api.journeyjuice.live/result', {
             method: 'POST',
@@ -296,6 +297,8 @@
         }).catch(error => {
             console.error('Error:', error);
         })
+        
+        this.innerHTML = "Explore"
     });
 
 
