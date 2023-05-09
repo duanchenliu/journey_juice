@@ -82,7 +82,7 @@ def chatGPTCall(prompt):
     # Replace with your actual API key
     
     url = "https://api.openai.com/v1/chat/completions"
-    
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {OPENAI_API_KEY}"
