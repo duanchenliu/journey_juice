@@ -78,33 +78,33 @@ def speech_2_text(audio_path):
 ################### ChatGPT API Call
 # Function to call chatGPT API with a prompt of your choice
 def chatGPTCall(prompt):
-    cmd = f"""
-    curl https://api.openai.com/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $OPENAI_API_KEY" \
-    -d '{{
+    api_key = "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"  # Replace with your actual API key
+    import requests
+    url = "https://api.openai.com/v1/chat/completions"
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    
+    data = {
         "model": "gpt-3.5-turbo",
-        "messages": [{{"role": "user", "content": "{prompt}"}}],
+        "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.9
-    }}'
-    """
+    }
+    
+    response = requests.post(url, headers=headers, json=data)
+    
+    output = response.json()
+    
     # Run the command and capture the output
     print("Calling chatGPT API...")
-    print(cmd)
+    
     try:
-        output = subprocess.check_output(cmd, shell=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}: {e.output}")
-        return
-    # handle the error here
-    response_str = output.decode('utf-8')
-    response_dict = json.loads(response_str)
-    try:
-        foutput = response_dict['choices'][0]['message']['content']
+        foutput = output['choices'][0]['message']['content']
     except KeyError:
         return
     return(foutput)
-
 
 ################### Google Event API access
 # Access Google Events API, Input: Location; Output: A dictionary of 10 events around the area
