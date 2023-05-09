@@ -78,25 +78,34 @@ def speech_2_text(audio_path):
 ################### ChatGPT API Call
 # Function to call chatGPT API with a prompt of your choice
 def chatGPTCall(prompt):
-    cmd = f"""
-    curl https://api.openai.com/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $OPENAI_API_KEY" \
-    -d '{{
+    # cmd = f"""
+    # curl https://api.openai.com/v1/chat/completions \
+    # -H "Content-Type: application/json" \
+    # -H "Authorization: Bearer $OPENAI_API_KEY" \
+    # -d '{{
+    #     "model": "gpt-3.5-turbo",
+    #     "messages": [{{"role": "user", "content": "{prompt}"}}],
+    #     "temperature": 0.9
+    # }}'
+    # """
+    # # Run the command and capture the output
+    # try:
+    #     output = subprocess.check_output(cmd, shell=True)
+    # except subprocess.CalledProcessError as e:
+    #     print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}: {e.output}")
+    #     return
+    # # handle the error here
+    # response_str = output.decode('utf-8')
+    import requests
+    URL = "https://api.openai.com/v1/chat/completions"
+    PARAMS = {
         "model": "gpt-3.5-turbo",
         "messages": [{{"role": "user", "content": "{prompt}"}}],
         "temperature": 0.9
-    }}'
-    """
-    # Run the command and capture the output
-    try:
-        output = subprocess.check_output(cmd, shell=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}: {e.output}")
-        return
-    # handle the error here
-    response_str = output.decode('utf-8')
-    response_dict = json.loads(response_str)
+    }
+    r = requests.get(url = URL, params = PARAMS)
+    # extracting data in json format
+    response_dict = r.json()
     try:
         foutput = response_dict['choices'][0]['message']['content']
     except KeyError:
