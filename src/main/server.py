@@ -89,6 +89,8 @@ def chatGPTCall(prompt):
     }}'
     """
     # Run the command and capture the output
+    print("Calling chatGPT API...")
+    print(cmd)
     try:
         output = subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
